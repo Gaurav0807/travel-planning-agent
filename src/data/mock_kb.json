@@ -1,0 +1,192 @@
+{
+  "destinations": [
+    {
+      "id": "dest_001",
+      "name": "Paris, France",
+      "description": "The City of Light is renowned for its art, cuisine, fashion, and romantic atmosphere. Home to iconic landmarks like the Eiffel Tower, Louvre Museum, and Notre-Dame Cathedral.",
+      "climate": "Temperate, mild winters, moderate summers. Best visited April-May or September-October.",
+      "attractions": ["Eiffel Tower", "Louvre Museum", "Arc de Triomphe", "Sacré-Cœur", "Champs-Élysées"],
+      "cuisine": "French bistro dining, pastries, wine, cheese",
+      "budget_level": "high",
+      "best_for": ["romantic trips", "art lovers", "food enthusiasts", "history buffs"]
+    },
+    {
+      "id": "dest_002",
+      "name": "Tokyo, Japan",
+      "description": "A vibrant metropolis blending traditional culture with cutting-edge technology. Experience ancient temples, bustling markets, and world-class cuisine.",
+      "climate": "Humid subtropical. Best visited March-May or September-November.",
+      "attractions": ["Senso-ji Temple", "Tokyo Tower", "Shibuya Crossing", "Meiji Shrine", "Akihabara"],
+      "cuisine": "Sushi, ramen, tempura, izakaya food",
+      "budget_level": "high",
+      "best_for": ["tech enthusiasts", "anime fans", "foodies", "culture explorers"]
+    },
+    {
+      "id": "dest_003",
+      "name": "Barcelona, Spain",
+      "description": "A Mediterranean city famous for its Gaudí architecture, vibrant culture, and beautiful beaches. Perfect blend of historic charm and modern energy.",
+      "climate": "Mediterranean. Warm summers, mild winters. Best visited April-May or September-October.",
+      "attractions": ["Sagrada Familia", "Park Güell", "Gothic Quarter", "Las Ramblas", "Montjuïc"],
+      "cuisine": "Tapas, paella, seafood, Mediterranean dishes",
+      "budget_level": "medium",
+      "best_for": ["architecture lovers", "beach goers", "party enthusiasts", "food lovers"]
+    },
+    {
+      "id": "dest_004",
+      "name": "New York City, USA",
+      "description": "The city that never sleeps offers world-class museums, Broadway shows, fine dining, and iconic landmarks. Experience the energy of urban life at its peak.",
+      "climate": "Humid continental. Best visited April-May or September-November.",
+      "attractions": ["Statue of Liberty", "Central Park", "Times Square", "Empire State Building", "Broadway"],
+      "cuisine": "Diverse international cuisines, bagels, pizza, steaks",
+      "budget_level": "high",
+      "best_for": ["culture seekers", "shopping lovers", "Broadway fans", "urban explorers"]
+    },
+    {
+      "id": "dest_005",
+      "name": "Bali, Indonesia",
+      "description": "A tropical paradise with lush rice terraces, ancient temples, pristine beaches, and spiritual culture. Affordable and accessible for travelers seeking relaxation and adventure.",
+      "climate": "Tropical. Warm year-round. Best visited April-October (dry season).",
+      "attractions": ["Temples", "Rice terraces", "Beaches", "Ubud Art Market", "Mount Batur"],
+      "cuisine": "Indonesian cuisine, satay, nasi goreng, fresh tropical fruits",
+      "budget_level": "low",
+      "best_for": ["budget travelers", "beach lovers", "spiritual seekers", "adventure enthusiasts"]
+    }
+  ],
+  "hotels": [
+    {
+      "id": "hotel_001",
+      "destination": "Paris, France",
+      "name": "Le Marais Luxury Apartments",
+      "type": "boutique_hotel",
+      "rating": 4.8,
+      "price_per_night": 250,
+      "description": "Charming hotel in the historic Marais district with elegant rooms and close proximity to museums and galleries.",
+      "amenities": ["WiFi", "Concierge", "Restaurant", "Spa", "Room service"],
+      "review_highlight": "Excellent location in Marais, friendly staff, beautiful decor"
+    },
+    {
+      "id": "hotel_002",
+      "destination": "Paris, France",
+      "name": "Budget Paris Hostel",
+      "type": "hostel",
+      "rating": 4.2,
+      "price_per_night": 35,
+      "description": "Clean and friendly hostel perfect for backpackers and solo travelers. Social atmosphere with bar and common areas.",
+      "amenities": ["WiFi", "Kitchen access", "Lounge", "Tours offered"],
+      "review_highlight": "Great value for money, friendly atmosphere, central location"
+    },
+    {
+      "id": "hotel_003",
+      "destination": "Tokyo, Japan",
+      "name": "Tokyo Shibuya Premium Hotel",
+      "type": "luxury_hotel",
+      "rating": 4.9,
+      "price_per_night": 350,
+      "description": "5-star hotel in Shibuya with stunning views, excellent Japanese cuisine, and world-class service.",
+      "amenities": ["WiFi", "Gym", "Multiple restaurants", "Spa", "Concierge"],
+      "review_highlight": "Impeccable service, great food, perfect Shibuya location"
+    },
+    {
+      "id": "hotel_004",
+      "destination": "Bali, Indonesia",
+      "name": "Ubud Garden Villa",
+      "type": "resort",
+      "rating": 4.6,
+      "price_per_night": 80,
+      "description": "Beautiful villa resort surrounded by rice terraces and gardens. Perfect for relaxation and nature immersion.",
+      "amenities": ["Pool", "Spa", "Restaurant", "Yoga classes", "WiFi"],
+      "review_highlight": "Stunning views, peaceful atmosphere, excellent spa services"
+    },
+    {
+      "id": "hotel_005",
+      "destination": "Barcelona, Spain",
+      "name": "Gothic Quarter Boutique Hotel",
+      "type": "boutique_hotel",
+      "rating": 4.5,
+      "price_per_night": 180,
+      "description": "Intimate hotel in the heart of Gothic Quarter with unique architectural charm and personal service.",
+      "amenities": ["WiFi", "Rooftop terrace", "Restaurant", "Room service", "Concierge"],
+      "review_highlight": "Perfect location in Gothic Quarter, charming rooms, excellent breakfast"
+    }
+  ],
+  "flights": [
+    {
+      "id": "flight_001",
+      "route": "New York to Paris",
+      "airline": "Air France",
+      "duration_hours": 7,
+      "price_range": "$600-1200",
+      "description": "Direct transatlantic service from NYC to Paris. Multiple daily departures."
+    },
+    {
+      "id": "flight_002",
+      "route": "New York to Tokyo",
+      "airline": "All Nippon Airways",
+      "duration_hours": 13,
+      "price_range": "$800-1500",
+      "description": "Nonstop service to Tokyo. Premium in-flight service included."
+    },
+    {
+      "id": "flight_003",
+      "route": "Paris to Barcelona",
+      "airline": "Iberia",
+      "duration_hours": 2,
+      "price_range": "$100-300",
+      "description": "Short-haul European flight. Budget and full-service options available."
+    },
+    {
+      "id": "flight_004",
+      "route": "Singapore to Bali",
+      "airline": "Garuda Indonesia",
+      "duration_hours": 3,
+      "price_range": "$150-400",
+      "description": "Quick regional flight to popular tropical destination."
+    }
+  ],
+  "experiences": [
+    {
+      "id": "exp_001",
+      "destination": "Paris, France",
+      "title": "Seine River Dinner Cruise",
+      "description": "Romantic evening cruise on the Seine with gourmet dinner and live music. Perfect for couples.",
+      "duration_hours": 2.5,
+      "price": "$150",
+      "best_for": ["couples", "romantic trips", "foodies"]
+    },
+    {
+      "id": "exp_002",
+      "destination": "Tokyo, Japan",
+      "title": "Traditional Tea Ceremony Experience",
+      "description": "Learn the art of Japanese tea ceremony from a master. Includes practice and traditional sweets.",
+      "duration_hours": 1.5,
+      "price": "$50",
+      "best_for": ["culture seekers", "spiritual travelers", "foodies"]
+    },
+    {
+      "id": "exp_003",
+      "destination": "Barcelona, Spain",
+      "title": "Sagrada Familia Guided Tour",
+      "description": "Expert-guided tour of Gaudí's masterpiece. Learn about architecture, history, and symbolism.",
+      "duration_hours": 2,
+      "price": "$35",
+      "best_for": ["architecture lovers", "history buffs", "art enthusiasts"]
+    },
+    {
+      "id": "exp_004",
+      "destination": "Bali, Indonesia",
+      "title": "Sunrise Hike on Mount Batur",
+      "description": "Pre-dawn trek to see sunrise from an active volcano. Includes breakfast and guide.",
+      "duration_hours": 5,
+      "price": "$40",
+      "best_for": ["adventure enthusiasts", "nature lovers", "photographers"]
+    },
+    {
+      "id": "exp_005",
+      "destination": "Bali, Indonesia",
+      "title": "Balinese Cooking Class",
+      "description": "Learn to prepare authentic Balinese dishes from a local chef. Includes market visit and meal.",
+      "duration_hours": 3,
+      "price": "$45",
+      "best_for": ["foodies", "culinary enthusiasts", "culture explorers"]
+    }
+  ]
+}
