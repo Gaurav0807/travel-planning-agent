@@ -1,26 +1,28 @@
+"""
+FLIGHT_SEARCHER.PY - Second agent
+
+Suggests flight options based on trip details.
+"""
+
 import json
-import logging
 from langchain_core.messages import SystemMessage, HumanMessage
 from utils.bedrock_client import get_llm
 from utils.prompt_loader import load_system_prompt
-
-logger = logging.getLogger(__name__)
 
 llm = get_llm()
 
 
 def flight_searcher(state):
-    """Search for flights based on trip details"""
-
-    logger.info("[flight_searcher] Running...")
+    """Find flights for the trip"""
 
     trip = state.get("trip_details")
     if not trip:
         return {"response_user": "Need trip details first"}
 
+    # Load instructions
     prompt = load_system_prompt("flight_searcher")
 
-    # Add trip context to prompt
+    # Add trip info
     context = f"""
         Trip Details:
         - Destination: {trip['destination']}
@@ -29,15 +31,14 @@ def flight_searcher(state):
         - Travelers: {trip['num_travelers']}
         """
 
+    # Ask Claude for flights
     response = llm.invoke([
         SystemMessage(prompt + context),
         HumanMessage(content=f"Find flights to {trip['destination']}")
     ])
 
-    # Extract flight options from response
-    flights = _extract_flights(response.content)
-
-    logger.info(f"[flight_searcher] Found {len(flights)} flights")
+    # Get flights from response
+    flights = extract_flights(response.content)
 
     return {
         "travel_chat": [response],
@@ -47,8 +48,9 @@ def flight_searcher(state):
     }
 
 
-def _extract_flights(content):
-    """Extract flights JSON array from response"""
+def extract_flights(content):
+    """Get flights JSON from response"""
+
     try:
         start = content.find('[')
         end = content.rfind(']') + 1

@@ -1,24 +1,21 @@
-import logging
 from langchain_core.messages import SystemMessage, HumanMessage
 from utils.bedrock_client import get_llm
 from utils.prompt_loader import load_system_prompt
-
-logger = logging.getLogger(__name__)
 
 llm = get_llm()
 
 
 def itinerary_planner(state):
-    """Create day-by-day itinerary"""
-
-    logger.info("[itinerary_planner] Running...")
+    """Create the final itinerary"""
 
     trip = state.get("trip_details")
     if not trip:
         return {"response_user": "Need trip details first"}
 
+    # Load instructions
     prompt = load_system_prompt("itinerary_planner")
 
+    # Add trip info
     context = f"""
         Trip Details:
         - Destination: {trip['destination']}
@@ -28,12 +25,11 @@ def itinerary_planner(state):
         - Interests: {', '.join(trip.get('interests', []))}
         """
 
+    # Ask Claude for itinerary
     response = llm.invoke([
         SystemMessage(prompt + context),
         HumanMessage(content=f"Create itinerary for {trip['destination']}")
     ])
-
-    logger.info("[itinerary_planner] Created itinerary")
 
     return {
         "travel_chat": [response],

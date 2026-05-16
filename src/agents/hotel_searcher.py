@@ -1,41 +1,39 @@
+
 import json
-import logging
 from langchain_core.messages import SystemMessage, HumanMessage
 from utils.bedrock_client import get_llm
 from utils.prompt_loader import load_system_prompt
-
-logger = logging.getLogger(__name__)
 
 llm = get_llm()
 
 
 def hotel_searcher(state):
-    """Search for hotels based on trip details"""
-
-    logger.info("[hotel_searcher] Running...")
+    """Find hotels for the trip"""
 
     trip = state.get("trip_details")
     if not trip:
         return {"response_user": "Need trip details first"}
 
+    # Load instructions
     prompt = load_system_prompt("hotel_searcher")
 
+    # Add trip info
     context = f"""
-Trip Details:
-- Destination: {trip['destination']}
-- Dates: {trip['departure_date']} to {trip['return_date']}
-- Budget: ${trip['budget']}
-- Travelers: {trip['num_travelers']}
-"""
+        Trip Details:
+        - Destination: {trip['destination']}
+        - Dates: {trip['departure_date']} to {trip['return_date']}
+        - Budget: ${trip['budget']}
+        - Travelers: {trip['num_travelers']}
+        """
 
+    # Ask Claude for hotels
     response = llm.invoke([
         SystemMessage(prompt + context),
         HumanMessage(content=f"Find hotels in {trip['destination']}")
     ])
 
-    hotels = _extract_hotels(response.content)
-
-    logger.info(f"[hotel_searcher] Found {len(hotels)} hotels")
+    # Get hotels from response
+    hotels = extract_hotels(response.content)
 
     return {
         "travel_chat": [response],
@@ -45,8 +43,9 @@ Trip Details:
     }
 
 
-def _extract_hotels(content):
-    """Extract hotels JSON array from response"""
+def extract_hotels(content):
+    """Get hotels JSON from response"""
+
     try:
         start = content.find('[')
         end = content.rfind(']') + 1

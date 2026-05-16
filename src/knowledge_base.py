@@ -1,43 +1,31 @@
 """
-KNOWLEDGE_BASE.PY - Semantic Memory
+KNOWLEDGE_BASE.PY - Facts about destinations
 
-This is the agent's knowledge about destinations, hotels, flights, etc.
-Data is stored in data/mock_kb.json
-
-SEMANTIC MEMORY = Facts and knowledge (not personal to user)
-
-Example:
-- "Tokyo has Senso-ji Temple"
-- "Bali is best visited April-October"
-- "Paris hotels cost $35-250/night"
+This has info about Tokyo, Paris, Bali, etc.
+The bot uses this to give accurate information.
 """
 
 import json
 from pathlib import Path
 
-
-# Load data once when module is imported
+# load data json file
 KB_PATH = Path(__file__).parent / "data" / "mock_kb.json"
 
 try:
     with open(KB_PATH, "r") as f:
-        KB_DATA = json.load(f)
+        DATA = json.load(f)
 except:
-    KB_DATA = {"destinations": [], "hotels": [], "flights": [], "experiences": []}
+    DATA = {"destinations": [], "hotels": [], "flights": [], "experiences": []}
 
 
 def search_destination(query):
-    """
-    Search for destination info by name or keyword
+    """Find destinations by name or keyword"""
 
-    Input: "Tokyo" or "beach" or "temples"
-    Output: List of matching destinations
-    """
     query = query.lower()
     results = []
 
-    for dest in KB_DATA.get("destinations", []):
-        # Check name, description, attractions, best_for
+    for dest in DATA.get("destinations", []):
+        # Check if query matches name, description, or attractions
         if (
             query in dest["name"].lower()
             or query in dest["description"].lower()
@@ -50,45 +38,37 @@ def search_destination(query):
 
 
 def search_hotels(destination="", budget=""):
-    """
-    Search for hotels by destination and budget
+    """Find hotels by destination and budget (low/medium/high)"""
 
-    Input: destination="Tokyo", budget="low" / "medium" / "high"
-    Output: List of matching hotels
-    """
     results = []
 
-    for hotel in KB_DATA.get("hotels", []):
-        # Check destination match
-        dest_match = not destination or destination.lower() in hotel["destination"].lower()
+    for hotel in DATA.get("hotels", []):
+        # Check destination
+        dest_ok = not destination or destination.lower() in hotel["destination"].lower()
 
-        # Check budget match
+        # Check budget
         price = hotel.get("price_per_night", 0)
         if budget == "low":
-            budget_match = price < 100
+            budget_ok = price < 100
         elif budget == "medium":
-            budget_match = 100 <= price < 250
+            budget_ok = 100 <= price < 250
         elif budget == "high":
-            budget_match = price >= 250
+            budget_ok = price >= 250
         else:
-            budget_match = True
+            budget_ok = True
 
-        if dest_match and budget_match:
+        if dest_ok and budget_ok:
             results.append(hotel)
 
     return results
 
 
 def search_flights(destination=""):
-    """
-    Search for flights to a destination
+    """Find flights to a destination"""
 
-    Input: destination="Tokyo"
-    Output: List of matching flights
-    """
     results = []
 
-    for flight in KB_DATA.get("flights", []):
+    for flight in DATA.get("flights", []):
         if not destination or destination.lower() in flight["route"].lower():
             results.append(flight)
 
@@ -96,47 +76,39 @@ def search_flights(destination=""):
 
 
 def search_experiences(destination="", interests=None):
-    """
-    Search for experiences/activities
+    """Find activities and tours"""
 
-    Input: destination="Bali", interests=["food", "adventure"]
-    Output: List of matching experiences
-    """
     interests = interests or []
     results = []
 
-    for exp in KB_DATA.get("experiences", []):
+    for exp in DATA.get("experiences", []):
         # Check destination
-        dest_match = not destination or destination.lower() in exp["destination"].lower()
+        dest_ok = not destination or destination.lower() in exp["destination"].lower()
 
         # Check interests
         if interests:
-            interest_match = any(
+            interest_ok = any(
                 interest.lower() in cat.lower()
                 for interest in interests
                 for cat in exp.get("best_for", [])
             )
         else:
-            interest_match = True
+            interest_ok = True
 
-        if dest_match and interest_match:
+        if dest_ok and interest_ok:
             results.append(exp)
 
     return results
 
 
 def get_destination_info(destination):
-    """
-    Get full info about a destination for the LLM
+    """Get all info about a destination for the bot to use"""
 
-    Input: "Tokyo"
-    Output: Formatted string with all KB info about Tokyo
-    """
     dest_name = destination.lower()
 
-    # Find destination
+    # Find the destination
     dest_info = None
-    for dest in KB_DATA.get("destinations", []):
+    for dest in DATA.get("destinations", []):
         if dest_name in dest["name"].lower():
             dest_info = dest
             break
@@ -144,40 +116,38 @@ def get_destination_info(destination):
     if not dest_info:
         return None
 
-    # Find hotels
+    # Get related hotels and experiences
     hotels = search_hotels(destination=dest_info["name"])
-
-    # Find experiences
     experiences = search_experiences(destination=dest_info["name"])
 
-    # Format output
+    # Build info text
     output = f"""
-KNOWLEDGE BASE INFO FOR: {dest_info['name']}
+        INFO FOR: {dest_info['name']}
 
-ABOUT:
-{dest_info['description']}
+        ABOUT:
+        {dest_info['description']}
 
-CLIMATE:
-{dest_info.get('climate', 'N/A')}
+        CLIMATE:
+        {dest_info.get('climate', 'N/A')}
 
-TOP ATTRACTIONS:
-{', '.join(dest_info.get('attractions', []))}
+        TOP ATTRACTIONS:
+        {', '.join(dest_info.get('attractions', []))}
 
-CUISINE:
-{dest_info.get('cuisine', 'N/A')}
+        CUISINE:
+        {dest_info.get('cuisine', 'N/A')}
 
-BUDGET LEVEL: {dest_info.get('budget_level', 'N/A')}
+        BUDGET LEVEL: {dest_info.get('budget_level', 'N/A')}
 
-BEST FOR: {', '.join(dest_info.get('best_for', []))}
-"""
+        BEST FOR: {', '.join(dest_info.get('best_for', []))}
+        """
 
     if hotels:
-        output += "\nHOTELS IN KB:\n"
+        output += "\nHOTELS:\n"
         for h in hotels:
             output += f"- {h['name']}: ${h['price_per_night']}/night, Rating {h['rating']}/5\n"
 
     if experiences:
-        output += "\nEXPERIENCES IN KB:\n"
+        output += "\nTHINGS TO DO:\n"
         for e in experiences:
             output += f"- {e['title']}: {e['duration_hours']}h, {e['price']}\n"
 

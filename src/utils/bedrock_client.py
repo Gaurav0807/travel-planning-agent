@@ -1,7 +1,11 @@
+"""
+BEDROCK_CLIENT.PY - Talks to AWS Bedrock (Claude AI)
+
+This sends messages to Claude and gets responses.
+"""
+
 import os
-import json
 import boto3
-import logging
 from dotenv import load_dotenv
 from langchain_core.language_models import BaseChatModel
 from langchain_core.messages import AIMessage
@@ -10,121 +14,99 @@ from pydantic import Field, ConfigDict
 
 load_dotenv()
 
-logger = logging.getLogger(__name__)
-
-BEDROCK_MODEL = os.getenv("BEDROCK_MODEL", "us.anthropic.claude-haiku-4-5-20251001-v1:0")
+# Which Claude model to use
+MODEL = os.getenv("BEDROCK_MODEL", "us.anthropic.claude-haiku-4-5-20251001-v1:0")
 REGION = os.getenv("AWS_REGION", "us-east-1")
-
-logger.info(f"Using Bedrock Model: {BEDROCK_MODEL}")
-logger.info(f"Using Region: {REGION}")
 
 
 class BedrockLLM(BaseChatModel):
-    """Bedrock LLM using Converse API (boto3)"""
+    """Sends messages to Claude via AWS Bedrock"""
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
-    model_id: str = Field(default=BEDROCK_MODEL)
+    model_id: str = Field(default=MODEL)
     region_name: str = Field(default=REGION)
     temperature: float = Field(default=0.7)
     max_tokens: int = Field(default=2000)
     client: object = Field(default=None)
 
-    def __init__(self, model_id: str = BEDROCK_MODEL, region_name: str = REGION, **kwargs):
+    def __init__(self, **kwargs):
         super().__init__(
-            model_id=model_id,
-            region_name=region_name,
-            client=boto3.client("bedrock-runtime", region_name=region_name),
+            model_id=MODEL,
+            region_name=REGION,
+            client=boto3.client("bedrock-runtime", region_name=REGION),
             **kwargs
         )
 
     def _generate(self, messages, stop=None, **kwargs):
-        """Generate response using Bedrock Converse API"""
+        """Send messages to Claude and get response"""
+
+        # Separate system message from conversation
         system_messages = []
-        converse_messages = []
+        chat_messages = []
 
         for msg in messages:
             if msg.type == "system":
                 system_messages.append({"text": msg.content})
             elif msg.type == "human":
-                converse_messages.append({
+                chat_messages.append({
                     "role": "user",
                     "content": [{"text": msg.content}],
                 })
             elif msg.type == "ai":
-                converse_messages.append({
+                chat_messages.append({
                     "role": "assistant",
                     "content": [{"text": msg.content}],
                 })
 
-        try:
-            logger.info(f"Invoking {self.model_id} via Converse API")
+        # Clean up messages (must alternate user/assistant)
+        cleaned = []
+        for msg in chat_messages:
+            if not cleaned or cleaned[-1]["role"] != msg["role"]:
+                cleaned.append(msg)
+            else:
+                # Merge if same role
+                cleaned[-1]["content"][0]["text"] += "\n" + msg["content"][0]["text"]
 
-            # Ensure messages alternate between user/assistant
-            cleaned_messages = []
-            for msg in converse_messages:
-                if not cleaned_messages or cleaned_messages[-1]["role"] != msg["role"]:
-                    cleaned_messages.append(msg)
-                else:
-                    cleaned_messages[-1]["content"][0]["text"] += "\n" + msg["content"][0]["text"]
+        # Must start with user message
+        if cleaned and cleaned[0]["role"] != "user":
+            cleaned.insert(0, {"role": "user", "content": [{"text": "Continue."}]})
 
-            # Must start with user message
-            if cleaned_messages and cleaned_messages[0]["role"] != "user":
-                cleaned_messages.insert(0, {"role": "user", "content": [{"text": "Continue."}]})
+        if not cleaned:
+            cleaned = [{"role": "user", "content": [{"text": "Hello"}]}]
 
-            # Must not be empty
-            if not cleaned_messages:
-                cleaned_messages = [{"role": "user", "content": [{"text": "Continue."}]}]
+        # Build request
+        request = {
+            "modelId": self.model_id,
+            "messages": cleaned,
+            "inferenceConfig": {
+                "maxTokens": self.max_tokens,
+                "temperature": self.temperature,
+            },
+        }
 
-            request = {
-                "modelId": self.model_id,
-                "messages": cleaned_messages,
-                "inferenceConfig": {
-                    "maxTokens": self.max_tokens,
-                    "temperature": self.temperature,
-                },
-            }
+        if system_messages:
+            request["system"] = system_messages
 
-            if system_messages:
-                request["system"] = system_messages
+        # Call Claude
+        response = self.client.converse(**request)
 
-            response = self.client.converse(**request)
+        # Get the text response
+        content = response["output"]["message"]["content"][0]["text"]
 
-            content = response["output"]["message"]["content"][0]["text"]
-
-            return ChatResult(
-                generations=[ChatGeneration(message=AIMessage(content=content))]
-            )
-
-        except Exception as e:
-            logger.error(f"Error invoking Bedrock: {str(e)}")
-            raise
+        return ChatResult(
+            generations=[ChatGeneration(message=AIMessage(content=content))]
+        )
 
     @property
     def _llm_type(self):
-        return "bedrock-converse"
+        return "bedrock"
 
     @property
     def _identifying_params(self):
-        return {"model_id": self.model_id, "region": self.region_name}
+        return {"model_id": self.model_id}
 
 
-def get_llm(model_id: str = BEDROCK_MODEL):
-    """Get Bedrock LLM instance using Converse API"""
-    logger.info(f"Creating BedrockLLM with model_id={model_id}, region={REGION}")
-    return BedrockLLM(
-        model_id=model_id,
-        region_name=REGION,
-        temperature=0.7,
-        max_tokens=2000,
-    )
-
-
-def get_model_for_agent(agent_name: str) -> str:
-    """Get model override for specific agent"""
-    return BEDROCK_MODEL
-
-
-def get_bedrock_client():
-    """Get raw Bedrock client for KB operations"""
-    return boto3.client("bedrock-runtime", region_name=REGION)
+def get_llm():
+    """Get a Claude instance"""
+    return BedrockLLM()
