@@ -1,0 +1,6 @@
+input,expected_output
+"Create itinerary for Tokyo, June 15-22, budget $5000, 2 travelers, interests: food and temples","Should have day-by-day plan with temple visits like Senso-ji and food recommendations like sushi or ramen"
+"Create itinerary for Paris, March 10-14, budget $3000, 2 travelers, interests: art and food","Should include Louvre or Musee d'Orsay, French restaurant recommendations, day-by-day format"
+"Create itinerary for Bali, July 1-7, budget $1000, 1 traveler, interests: beaches and surfing","Should include beach activities, surfing spots, day-by-day format with budget-friendly options"
+"Create itinerary for Barcelona, Sept 5-9, budget $2500, 2 travelers, interests: architecture and nightlife","Should include Sagrada Familia or Park Guell, evening activities, day-by-day format"
+"Create itinerary for New York, Dec 20-25, budget $4000, 3 travelers, interests: shopping and Broadway","Should include shopping areas like Fifth Avenue, Broadway show, holiday activities, day-by-day format"

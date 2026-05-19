@@ -1,0 +1,6 @@
+input,expected_output
+"I want to go to Tokyo from June 15 to June 22, budget $5000, 2 travelers, interested in food and temples","Trip details extracted: Tokyo, June 15 to June 22, budget $5000, 2 travelers, interests: food and temples"
+"I want to visit Paris","Agent should ask clarifying questions about dates, budget, number of travelers, and interests"
+"I want a beach vacation","Agent should suggest beach destinations like Bali and ask follow-up questions"
+"Tell me about Tokyo","Should mention Senso-ji Temple, sushi, Japanese cuisine from knowledge base"
+"I want to go to Bali from July 1 to July 7, budget $1000, 1 person, interested in beaches","Trip details extracted: Bali, July 1 to July 7, budget $1000, 1 traveler, interests: beaches"

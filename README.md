@@ -14,7 +14,6 @@ This project implements all 4 types of memory from the CoALA framework:
 | **Procedural Memory** | How agents should behave, output formats | `system_prompts/travel/*.txt` |
 
 
-
 ## Agent Flow
 
 ```
@@ -32,9 +31,7 @@ START -> trip_analyzer -> flight_searcher -> hotel_searcher -> itinerary_planner
 
 ```bash
 cd Travel-planning-agent
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
+uv sync
 ```
 
 ### 2. Configure AWS
@@ -137,7 +134,6 @@ Uses Claude Haiku 4.5 via the Converse API:
 us.anthropic.claude-haiku-4-5-20251001-v1:0
 ```
 
-To change the model, edit `src/utils/bedrock_client.py`.
 
 ## Key Files Explained
 
@@ -150,36 +146,70 @@ To change the model, edit `src/utils/bedrock_client.py`.
 | `knowledge_base.py` | Functions to search destination/hotel/flight facts |
 | `user_profiles.py` | Functions to load/save user history |
 
-## Customization
+## Evaluation Framework
 
-### Add a New Destination
 
-Edit `src/data/mock_kb.json`:
 
-```json
-{
-  "destinations": [
-    {
-      "name": "London",
-      "description": "Historic capital of England",
-      "attractions": ["Big Ben", "Tower of London", "British Museum"],
-      "best_for": ["history", "culture", "museums"],
-      "climate": "Mild, rainy year-round",
-      "cuisine": "Fish and chips, afternoon tea",
-      "budget_level": "high"
-    }
-  ]
-}
+### Metrics
+
+| Metric | What It Measures | Threshold |
+|--------|-----------------|-----------|
+| **Correctness** | Key facts match expected output (GEval LLM-as-judge) | 0.7 |
+| **Relevancy** | Response directly addresses the travel query | 0.7 |
+| **Completeness** | Covers all aspects (dates, budget, transport, accommodation) | 0.7 |
+| **Hallucination** | Detects fabricated flights, hotels, or facts | 0.5 |
+| **Latency (p95)** | Response time under load | 30s |
+| **Token Usage** | Input/output tokens per query | — |
+
+![Evauation_runs](/eval/Evaluation_All_Runs.png)
+
+
+
+### Running Evals Locally
+
+```bash
+# 1. Install dependencies
+cd Travel-planning-agent
+pip install deepeval langchain-aws langchain-core boto3 mlflow pandas
+
+# 2. Configure AWS credentials (needed for Bedrock judge model)
+export AWS_ACCESS_KEY_ID=your_key
+export AWS_SECRET_ACCESS_KEY=your_secret
+export AWS_DEFAULT_REGION=us-east-1
+
+# 3. Run evaluations
+cd src
+python -m eval.run_eval              # Trip analyzer (all 5 metrics)
+python -m eval.run_eval_itinerary    # Itinerary planner eval
 ```
 
-### Add a New Agent
+### Example Output
 
-1. Create `src/agents/new_agent.py`
-2. Add to `src/agents/__init__.py`
-3. Add node in `graph.py`
-4. Add routing logic
-5. Create prompt in `system_prompts/travel/`
+```
+============================================================
+  RESULTS
+============================================================
+  Correctness Avg:   0.850
+  Relevancy Avg:     0.900
+  Completeness Avg:  0.780
+  Faithfulness Avg:  0.920
+  Hallucination Avg: 0.150
+  Pass Rate:         8/10
+  Total Tokens:      12450
+  Avg Latency:       3.2s
+  Duration:          32.1s
+  Saved to MLflow
+============================================================
+```
 
-## License
+### MLflow Dashboard
 
-MIT
+```bash
+cd eval
+uv run mlflow ui --port 5000 --backend-store-uri sqlite:///mlflow.db
+# Open http://localhost:5000 to view experiment runs, compare metrics across iterations
+/workspaces/travel-planning-agent/eval/mlflow_run.png
+```
+
+
+
