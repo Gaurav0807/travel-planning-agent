@@ -170,7 +170,7 @@ us.anthropic.claude-haiku-4-5-20251001-v1:0
 ```bash
 # 1. Install dependencies
 cd Travel-planning-agent
-pip install deepeval langchain-aws langchain-core boto3 mlflow pandas
+uv sync
 
 # 2. Configure AWS credentials (needed for Bedrock judge model)
 export AWS_ACCESS_KEY_ID=your_key
@@ -179,8 +179,8 @@ export AWS_DEFAULT_REGION=us-east-1
 
 # 3. Run evaluations
 cd src
-python -m eval.run_eval              # Trip analyzer (all 5 metrics)
-python -m eval.run_eval_itinerary    # Itinerary planner eval
+uv run eval.run_eval              # Trip analyzer (all 5 metrics)
+uv run eval.run_eval_itinerary    # Itinerary planner eval
 ```
 
 ### Example Output
@@ -211,5 +211,6 @@ uv run mlflow ui --port 5000 --backend-store-uri sqlite:///mlflow.db
 /workspaces/travel-planning-agent/eval/mlflow_run.png
 ```
 
+![Evauation_runs](/eval/mlflow_run.png)
 
 
