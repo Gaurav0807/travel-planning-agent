@@ -217,4 +217,5 @@ uv run mlflow ui --port 5000 --backend-store-uri sqlite:///mlflow.db
 #### Aws BedRock Guardrails Flow
 
 
-![BedRock_Guardrails_Flow](infra/Guardrails_Flow.png)
+![BedRock_Guardrails_Flow](infra/Complete_Guardrails_Flow.png)
+
