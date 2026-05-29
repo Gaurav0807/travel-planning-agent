@@ -1,9 +1,3 @@
-"""
-BEDROCK_CLIENT.PY - Talks to AWS Bedrock (Claude AI)
-
-This sends messages to Claude and gets responses.
-"""
-
 import os
 import boto3
 from dotenv import load_dotenv
@@ -88,14 +82,39 @@ class BedrockLLM(BaseChatModel):
         if system_messages:
             request["system"] = system_messages
 
+        # Add guardrail if configured
+        try:
+            gid = guardrail_id()
+            if gid:
+                request["guardrailConfig"] = {
+                    "guardrailIdentifier": gid,
+                    "guardrailVersion": "DRAFT",
+                }
+        except Exception:
+            pass  # No guardrail if SSM parameter not found
+
         # Call Claude
         response = self.client.converse(**request)
 
         # Get the text response
         content = response["output"]["message"]["content"][0]["text"]
 
+        # Extract token usage
+        usage = response.get("usage", {})
+        response_metadata = {
+            "usage": {
+                "input_tokens": usage.get("inputTokens", 0),
+                "output_tokens": usage.get("outputTokens", 0),
+            }
+        }
+
         return ChatResult(
-            generations=[ChatGeneration(message=AIMessage(content=content))]
+            generations=[ChatGeneration(
+                message=AIMessage(
+                    content=content,
+                    response_metadata=response_metadata,
+                )
+            )]
         )
 
     @property
@@ -110,3 +129,9 @@ class BedrockLLM(BaseChatModel):
 def get_llm():
     """Get a Claude instance"""
     return BedrockLLM()
+
+
+def guardrail_id():
+    ssm = boto3.client("ssm",region_name="us-east-1")
+    response = ssm.get_parameter(Name="/agent/guardrail-id")
+    return response["Parameter"]["Value"]
